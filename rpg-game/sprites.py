@@ -6,7 +6,7 @@ class Ground(pygame.sprite.Sprite):
         self._game = game
         
         #adding every block to groups
-        self.groups = self.game._all_sprites
+        self.groups = self._game._all_sprites
         pygame.sprite.Sprite.__init__(self, self.groups)
         
         #every block will start at tile position * size
@@ -19,7 +19,7 @@ class Ground(pygame.sprite.Sprite):
         self.height = TILE_SIZE
         
         #create block from blitted image
-        self.image = self.game._terrain_spritesheet.get_spirte(447, 353, self.width, self.height)
+        self.image = self._game._terrain_spritesheet.get_image(447, 353, self.width, self.height)
         self.rect = self.image.get_rect() #set x, y coordinates of image
         self.rect.x = self._x
         self.rect.y = self._y
@@ -29,7 +29,7 @@ class Block(pygame.sprite.Sprite):
         self._game = game
         
         #adding every block to groups
-        self.groups = self.game._all_sprites
+        self.groups = self._game._all_sprites
         pygame.sprite.Sprite.__init__(self, self.groups)
         
         #every block will start at tile position * size
@@ -42,7 +42,7 @@ class Block(pygame.sprite.Sprite):
         self.height = TILE_SIZE
         
         #create block from blitted image
-        self.image = self.game._terrain_spritesheet.get_spirte(991, 541, self.width, self.height)
+        self.image = self._game._terrain_spritesheet.get_image(991, 541, self.width, self.height)
         self.rect = self.image.get_rect() #set x, y coordinates of image
         self.rect.x = self._x
         self.rect.y = self._y

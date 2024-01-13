@@ -5,18 +5,20 @@ from sprites import *
 
 class Spritesheet:
     def __init__(self, path):
-        self._spritesheet = pygame.image.load(file).convert()
+        self._spritesheet = pygame.image.load(path).convert()
         
-    def game_image(self, x,y, width, height):
+    def get_image(self, x,y, width, height):
         sprite = pygame.Surface([width, height])
         sprite.blit(self._spritesheet, (0,0), (x,y,width,height))
-
+        
+        #set transparency by replacing black with transparency
+        sprite.set_colorkey(BLACK)
         return sprite
     
     
 class Game:
     def __init__(self):
-        self._screen = pygame.display.set_mode(MIN_WIDTH, MIN_HEIGHT)
+        self._screen = pygame.display.set_mode((MIN_WIDTH, MIN_HEIGHT))
         self._clock = pygame.time.Clock()
         self._terrain_spritesheet = Spritesheet('assets/images/terrain.png') #991,541
         self._running = True
@@ -24,6 +26,7 @@ class Game:
     def createTileMap(self):
         #row = up and down = y
         #column = left and right = x
+        #this works even not on a matrix because we can enumerate a string in python
         for i, row in enumerate(tilemap):
             for j, column in enumerate(row):
                 Ground(self, j, i)
@@ -37,26 +40,32 @@ class Game:
     def update(self):
         self._all_sprites.update()
     
-    def events():
-        pass
+    def events(self):
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                self._running = False
 
     def draw(self):
-        self.screen.fill(BLACK)
+        self._screen.fill(BLACK)
         #draw the group that contains all of our sprites onto screen
         self._all_sprites.draw(self._screen)
         
         #tick and update display
-        self.clock.tick(FPS)
+        self._clock.tick(FPS)
         pygame.display.update()
     
-    def main():
-        pass
+    def main(self):
+        while self._running:
+            self.events()
+            self.update()
+            self.draw()
 
 game = Game()
 game.create()
 
-while game.running:
+while game._running:
     game.main()
     
 pygame.quit()
 sys.exit()
+
