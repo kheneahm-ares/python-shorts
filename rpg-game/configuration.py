@@ -7,6 +7,10 @@ FPS = 60
 GROUND_LAYER=1
 BLOCKS_LAYER= 2
 
+
+#colors
+BLACK = (0,0,0)
+
 #20x20 
 #B is block
 #. is empty area

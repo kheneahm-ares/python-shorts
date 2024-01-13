@@ -1,6 +1,7 @@
 from configuration import *
 import pygame 
 import sys
+from sprites import *
 
 class Spritesheet:
     def __init__(self, path):
@@ -21,19 +22,32 @@ class Game:
         self._running = True
         
     def createTileMap(self):
-        pass
+        #row = up and down = y
+        #column = left and right = x
+        for i, row in enumerate(tilemap):
+            for j, column in enumerate(row):
+                Ground(self, j, i)
+                if column == 'B':
+                    Block(self, j, i)
     
     def create(self):
         self._all_sprites = pygame.sprite.LayeredUpdates()
-    
-    def update():
-        pass
+        self.createTileMap()
+        
+    def update(self):
+        self._all_sprites.update()
     
     def events():
         pass
 
-    def draw():
-        pass
+    def draw(self):
+        self.screen.fill(BLACK)
+        #draw the group that contains all of our sprites onto screen
+        self._all_sprites.draw(self._screen)
+        
+        #tick and update display
+        self.clock.tick(FPS)
+        pygame.display.update()
     
     def main():
         pass
