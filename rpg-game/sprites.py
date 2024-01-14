@@ -187,6 +187,8 @@ class Enemy(BaseSprite):
                 
             self.maxSteps = random.choice([80, 100, 120])
             self.state = "stalling"
+        
+        self.collide_block()
 
     def animation(self):
         downAnimations = [self._game._enemy_spritesheet.get_image(0,0, self.width, self.height),
@@ -221,3 +223,21 @@ class Enemy(BaseSprite):
                 self.animationCounter += 0.2
                 if self.animationCounter >= 3:
                     self.animationCounter = 1 #not 0 bc that's standing still 
+
+    def collide_block(self):
+        #negating steps moved
+        collide = pygame.sprite.spritecollide(self, self._game._all_blocks, False, pygame.sprite.collide_rect_ratio(0.9))
+        
+        if collide:
+            if self.direction == 'left':
+                self.rect.x += PLAYER_STEPS
+                self.direction = 'right'
+            elif self.direction == 'right':
+                self.rect.x -= PLAYER_STEPS
+                self.direction = 'left'
+            elif self.direction == 'up':
+                self.rect.y += PLAYER_STEPS
+                self.direction = 'down'
+            elif self.direction == 'down':
+                self.rect.y -= PLAYER_STEPS
+                self.direction = 'up'
