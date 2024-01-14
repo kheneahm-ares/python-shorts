@@ -65,6 +65,7 @@ class Player(BaseSprite):
         self.rect.y = self.rect.y + self.y_change
         
         self.collide_block()
+        self.collide_enemy()
         #reset the            
         self.x_change = 0
         self.y_change = 0
@@ -106,7 +107,7 @@ class Player(BaseSprite):
     def collide_block(self):
         #negating steps moved
         pressed = pygame.key.get_pressed()
-        collide = pygame.sprite.spritecollide(self, self._game._all_blocks, False)
+        collide = pygame.sprite.spritecollide(self, self._game._all_blocks, False, pygame.sprite.collide_rect_ratio(0.9))
         
         if collide:
             if pressed[pygame.K_LEFT]:
@@ -118,6 +119,20 @@ class Player(BaseSprite):
             elif pressed[pygame.K_DOWN]:
                 self.rect.y -= PLAYER_STEPS
         
+    def collide_enemy(self):
+        #negating steps moved
+        pressed = pygame.key.get_pressed()
+        collide = pygame.sprite.spritecollide(self, self._game._all_enemies, False, pygame.sprite.collide_rect_ratio(0.9))
+        
+        if collide:
+            if pressed[pygame.K_LEFT]:
+                self.rect.x += PLAYER_STEPS
+            elif pressed[pygame.K_RIGHT]:
+                self.rect.x -= PLAYER_STEPS
+            elif pressed[pygame.K_UP]:
+                self.rect.y += PLAYER_STEPS
+            elif pressed[pygame.K_DOWN]:
+                self.rect.y -= PLAYER_STEPS
 class Enemy(BaseSprite):
     def __init__(self, game, x,y):
         self.x_change = 0
@@ -129,7 +144,7 @@ class Enemy(BaseSprite):
         self.state = 'moving'
         self.animationCounter = 0
         
-        super().__init__(game, x,y, ENEMY_LAYER, game._enemy_spritesheet.get_image(0, 0, TILE_SIZE, TILE_SIZE), (game._all_sprites))
+        super().__init__(game, x,y, ENEMY_LAYER, game._enemy_spritesheet.get_image(0, 0, TILE_SIZE, TILE_SIZE), (game._all_sprites, game._all_enemies))
         
     def move(self):
         if self.state == 'moving':
