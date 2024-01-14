@@ -38,11 +38,14 @@ class Game:
                     self.player = Player(self, j, i)
                 if column == 'E':
                     Enemy(self, j, i)
+                if column == 'W':
+                    Water(self, j, i)
     
     def create(self):
         self._all_sprites = pygame.sprite.LayeredUpdates()
         self._all_blocks = pygame.sprite.LayeredUpdates()
         self._all_enemies = pygame.sprite.LayeredUpdates()
+        self._all_water = pygame.sprite.LayeredUpdates()
         self.createTileMap()
         
     def update(self):

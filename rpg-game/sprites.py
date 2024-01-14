@@ -30,6 +30,25 @@ class Ground(BaseSprite):
     def __init__(self, game, x,y):
         super().__init__(game, x,y, GROUND_LAYER, game._terrain_spritesheet.get_image(447, 353, TILE_SIZE, TILE_SIZE), (game._all_sprites))
 
+class Water(BaseSprite):
+    def __init__(self, game, x,y):
+        self.animationCounter = 0
+        super().__init__(game, x,y, GROUND_LAYER, game._terrain_spritesheet.get_image(865, 160, TILE_SIZE, TILE_SIZE), (game._all_sprites, game._all_blocks))
+
+    def animation(self):
+        water = [self._game._terrain_spritesheet.get_image(864,160, self.width, self.height),
+                          self._game._terrain_spritesheet.get_image(896,160, self.width, self.height),
+                          self._game._terrain_spritesheet.get_image(928,160, self.width, self.height)]
+        self.image = water[math.floor(self.animationCounter)]
+        self.animationCounter += 0.1
+        if self.animationCounter >= 3:
+            self.animationCounter = 0
+    
+    def update(self):
+        self.animation()
+            
+
+
 class Block(BaseSprite):
     def __init__(self, game, x,y):
         super().__init__(game, x,y, BLOCKS_LAYER, game._terrain_spritesheet.get_image(991, 541, TILE_SIZE, TILE_SIZE),  (game._all_sprites, game._all_blocks))
@@ -108,8 +127,9 @@ class Player(BaseSprite):
         #negating steps moved
         pressed = pygame.key.get_pressed()
         collide = pygame.sprite.spritecollide(self, self._game._all_blocks, False, pygame.sprite.collide_rect_ratio(0.9))
+        collideWater = pygame.sprite.spritecollide(self, self._game._all_water, False, pygame.sprite.collide_rect_ratio(0.9))
         
-        if collide:
+        if collide or collideWater:
             if pressed[pygame.K_LEFT]:
                 self.rect.x += PLAYER_STEPS
             elif pressed[pygame.K_RIGHT]:
@@ -227,8 +247,9 @@ class Enemy(BaseSprite):
     def collide_block(self):
         #negating steps moved
         collide = pygame.sprite.spritecollide(self, self._game._all_blocks, False, pygame.sprite.collide_rect_ratio(0.9))
+        collideWater = pygame.sprite.spritecollide(self, self._game._all_water, False, pygame.sprite.collide_rect_ratio(0.9))
         
-        if collide:
+        if collide or collideWater:
             if self.direction == 'left':
                 self.rect.x += PLAYER_STEPS
                 self.direction = 'right'
