@@ -71,25 +71,35 @@ class Enemy(BaseSprite):
         self.x_change = 0
         self.y_change = 0
         self.direction = random.choice(['left','right', 'up', 'down'])
-        self.maxSteps = 40
+        self.maxSteps = random.choice([80, 100, 120])
+        self.maxStall = 40
         self.currentSteps = 0
+        self.state = 'moving'
         
         super().__init__(game, x,y, ENEMY_LAYER, game._enemy_spritesheet.get_image(0, 0, TILE_SIZE, TILE_SIZE))
         
     def move(self):
-        if self.direction == "left":            
-            self.x_change -= ENEMY_STEPS
+        if self.state == 'moving':
             
-        elif self.direction == "right":
-            self.x_change += ENEMY_STEPS
+            if self.direction == "left":            
+                self.x_change -= ENEMY_STEPS
+                
+            elif self.direction == "right":
+                self.x_change += ENEMY_STEPS
+                
+            elif self.direction == "down":
+                self.y_change += ENEMY_STEPS
+                
+            elif self.direction == "up":
+                self.y_change -= ENEMY_STEPS
             
-        elif self.direction == "down":
-            self.y_change += ENEMY_STEPS
+            self.currentSteps += 1
             
-        elif self.direction == "up":
-            self.y_change -= ENEMY_STEPS
-        
-        self.currentSteps += 1
+        elif self.state == "stalling":
+            self.currentSteps += 1
+            if self.currentSteps == self.maxStall:
+                self.state = 'moving'
+                self.currentSteps = 0
     
     def update(self):
         self.move()
@@ -101,5 +111,9 @@ class Enemy(BaseSprite):
         self.y_change = 0
         
         if self.currentSteps == self.maxSteps:
+            if self.state != 'stalling':
+                self.currentSteps = 0
+                
             self.direction = random.choice(['left','right', 'up', 'down'])
-            self.currentSteps = 0
+            self.maxSteps = random.choice([80, 100, 120])
+            self.state = "stalling"
