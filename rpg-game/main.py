@@ -41,6 +41,7 @@ class Game:
     
     def create(self):
         self._all_sprites = pygame.sprite.LayeredUpdates()
+        self._all_blocks = pygame.sprite.LayeredUpdates()
         self.createTileMap()
         
     def update(self):

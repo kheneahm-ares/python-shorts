@@ -4,13 +4,12 @@ import random
 import math
 
 class BaseSprite(pygame.sprite.Sprite):
-    def __init__(self, game, x,y, layer, image):
+    def __init__(self, game, x,y, layer, image, groups):
         self._game = game
         
         #adding every block to groups
         self._layer = layer
-        self.groups = self._game._all_sprites
-        
+        self.groups = groups
         pygame.sprite.Sprite.__init__(self, self.groups)
         
         #every block will start at tile position * size
@@ -29,11 +28,11 @@ class BaseSprite(pygame.sprite.Sprite):
 
 class Ground(BaseSprite):
     def __init__(self, game, x,y):
-        super().__init__(game, x,y, GROUND_LAYER, game._terrain_spritesheet.get_image(447, 353, TILE_SIZE, TILE_SIZE))
+        super().__init__(game, x,y, GROUND_LAYER, game._terrain_spritesheet.get_image(447, 353, TILE_SIZE, TILE_SIZE), (game._all_sprites))
 
 class Block(BaseSprite):
     def __init__(self, game, x,y):
-        super().__init__(game, x,y, BLOCKS_LAYER, game._terrain_spritesheet.get_image(991, 541, TILE_SIZE, TILE_SIZE))
+        super().__init__(game, x,y, BLOCKS_LAYER, game._terrain_spritesheet.get_image(991, 541, TILE_SIZE, TILE_SIZE),  (game._all_sprites, game._all_blocks))
         
 class Player(BaseSprite):
     def __init__(self, game, x,y):
@@ -41,11 +40,11 @@ class Player(BaseSprite):
         self.y_change = 0
         self.direction = "down"
         self.animationCounter = 0
-        super().__init__(game, x,y, PLAYER_LAYER, game._player_spritesheet.get_image(0, 0, TILE_SIZE, TILE_SIZE))
+        super().__init__(game, x,y, PLAYER_LAYER, game._player_spritesheet.get_image(0, 0, TILE_SIZE, TILE_SIZE), (game._all_sprites))
     
     def move(self):
         key_pressed = pygame.key.get_pressed()
-        
+            
         if key_pressed[pygame.K_LEFT]:            
             self.x_change -= PLAYER_STEPS
             self.direction = "left"
@@ -65,6 +64,7 @@ class Player(BaseSprite):
         self.rect.x = self.rect.x + self.x_change
         self.rect.y = self.rect.y + self.y_change
         
+        self.collide_block()
         #reset the            
         self.x_change = 0
         self.y_change = 0
@@ -102,6 +102,22 @@ class Player(BaseSprite):
                 self.animationCounter += 0.2
                 if self.animationCounter >= 3:
                     self.animationCounter = 1 #not 0 bc that's standing still 
+                    
+    def collide_block(self):
+        #negating steps moved
+        pressed = pygame.key.get_pressed()
+        collide = pygame.sprite.spritecollide(self, self._game._all_blocks, False)
+        
+        if collide:
+            if pressed[pygame.K_LEFT]:
+                self.rect.x += PLAYER_STEPS
+            elif pressed[pygame.K_RIGHT]:
+                self.rect.x -= PLAYER_STEPS
+            elif pressed[pygame.K_UP]:
+                self.rect.y += PLAYER_STEPS
+            elif pressed[pygame.K_DOWN]:
+                self.rect.y -= PLAYER_STEPS
+        
 class Enemy(BaseSprite):
     def __init__(self, game, x,y):
         self.x_change = 0
@@ -113,7 +129,7 @@ class Enemy(BaseSprite):
         self.state = 'moving'
         self.animationCounter = 0
         
-        super().__init__(game, x,y, ENEMY_LAYER, game._enemy_spritesheet.get_image(0, 0, TILE_SIZE, TILE_SIZE))
+        super().__init__(game, x,y, ENEMY_LAYER, game._enemy_spritesheet.get_image(0, 0, TILE_SIZE, TILE_SIZE), (game._all_sprites))
         
     def move(self):
         if self.state == 'moving':
