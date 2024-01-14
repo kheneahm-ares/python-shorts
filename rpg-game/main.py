@@ -20,7 +20,9 @@ class Game:
     def __init__(self):
         self._screen = pygame.display.set_mode((MIN_WIDTH, MIN_HEIGHT))
         self._clock = pygame.time.Clock()
-        self._terrain_spritesheet = Spritesheet('assets/images/terrain.png') #991,541
+        self._terrain_spritesheet = Spritesheet('assets/images/terrain.png') 
+        self._player_spritesheet = Spritesheet('assets/images/cats.png') 
+        self._enemy_spritesheet = Spritesheet('assets/images/evil.png') 
         self._running = True
         
     def createTileMap(self):
@@ -32,6 +34,10 @@ class Game:
                 Ground(self, j, i)
                 if column == 'B':
                     Block(self, j, i)
+                if column == 'P':
+                    self.player = Player(self, j, i)
+                if column == 'E':
+                    Enemy(self, j, i)
     
     def create(self):
         self._all_sprites = pygame.sprite.LayeredUpdates()
