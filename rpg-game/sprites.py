@@ -111,6 +111,7 @@ class Enemy(BaseSprite):
         self.maxStall = 40
         self.currentSteps = 0
         self.state = 'moving'
+        self.animationCounter = 0
         
         super().__init__(game, x,y, ENEMY_LAYER, game._enemy_spritesheet.get_image(0, 0, TILE_SIZE, TILE_SIZE))
         
@@ -136,9 +137,12 @@ class Enemy(BaseSprite):
             if self.currentSteps == self.maxStall:
                 self.state = 'moving'
                 self.currentSteps = 0
+                self.direction = random.choice(['left','right', 'up', 'down'])
+                
     
     def update(self):
         self.move()
+        self.animation()
         self.rect.x = self.rect.x + self.x_change
         self.rect.y = self.rect.y + self.y_change
         
@@ -150,6 +154,39 @@ class Enemy(BaseSprite):
             if self.state != 'stalling':
                 self.currentSteps = 0
                 
-            self.direction = random.choice(['left','right', 'up', 'down'])
             self.maxSteps = random.choice([80, 100, 120])
             self.state = "stalling"
+
+    def animation(self):
+        downAnimations = [self._game._enemy_spritesheet.get_image(0,0, self.width, self.height),
+                          self._game._enemy_spritesheet.get_image(32,0, self.width, self.height),
+                          self._game._enemy_spritesheet.get_image(64,0, self.width, self.height)]
+        upAnimations = [self._game._enemy_spritesheet.get_image(0,96, self.width, self.height),
+                          self._game._enemy_spritesheet.get_image(32,96, self.width, self.height),
+                          self._game._enemy_spritesheet.get_image(64,96, self.width, self.height)]
+        leftAnimations = [self._game._enemy_spritesheet.get_image(0,32, self.width, self.height),
+                          self._game._enemy_spritesheet.get_image(32,32, self.width, self.height),
+                          self._game._enemy_spritesheet.get_image(64,32, self.width, self.height)]
+        rightAnimations = [self._game._enemy_spritesheet.get_image(0,64, self.width, self.height),
+                          self._game._enemy_spritesheet.get_image(32,64, self.width, self.height),
+                          self._game._enemy_spritesheet.get_image(64,64, self.width, self.height)]
+        
+        if self.direction == 'down':
+            self.animate(downAnimations)
+        if self.direction == 'up':
+            self.animate(upAnimations)
+
+        if self.direction == 'left':
+            self.animate(leftAnimations)
+        
+        if self.direction == 'right':
+            self.animate(rightAnimations)
+
+    def animate(self, lstAnimation):
+            if self.y_change  == 0 and self.x_change == 0:
+                self.image = lstAnimation[0]
+            else:
+                self.image = lstAnimation[math.floor(self.animationCounter)]
+                self.animationCounter += 0.2
+                if self.animationCounter >= 3:
+                    self.animationCounter = 1 #not 0 bc that's standing still 
