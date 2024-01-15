@@ -2,6 +2,7 @@ import pygame
 from configuration import *
 import random
 import math
+from weapons import *
 
 class BaseSprite(pygame.sprite.Sprite):
     def __init__(self, game, x,y, layer, image, groups):
@@ -59,7 +60,17 @@ class Player(BaseSprite):
         self.y_change = 0
         self.direction = "down"
         self.animationCounter = 0
-        super().__init__(game, x,y, PLAYER_LAYER, game._player_spritesheet.get_image(0, 0, TILE_SIZE, TILE_SIZE), (game._all_sprites))
+        self.healthbar = Player_HealthBar(game, x, y)
+        self.swordEquipped = False
+        super().__init__(game, x,y, PLAYER_LAYER, game._player_spritesheet.get_image(0, 0, TILE_SIZE, TILE_SIZE), (game._all_sprites, game.mainPlayer))
+    
+    def shoot_sword(self):
+        pressed = pygame.key.get_pressed()
+        
+        if self.swordEquipped:
+            if pressed[pygame.K_z]:
+                print('hi')
+                Bullet(self._game, self.rect.x, self.rect.y)
     
     def move(self):
         key_pressed = pygame.key.get_pressed()
@@ -85,6 +96,9 @@ class Player(BaseSprite):
         
         self.collide_block()
         self.collide_enemy()
+        self.collide_weapon()
+        self.shoot_sword()
+        
         #reset the            
         self.x_change = 0
         self.y_change = 0
@@ -162,6 +176,11 @@ class Player(BaseSprite):
                 self.rect.y -= PLAYER_STEPS
         else:
             self._game.enemy_collided = False
+    def collide_weapon(self):
+        #negating steps moved
+        collide = pygame.sprite.spritecollide(self, self._game._all_weapons, True, pygame.sprite.collide_rect_ratio(0.9))
+        if collide:
+            self.swordEquipped = True
             
 class Enemy(BaseSprite):
     def __init__(self, game, x,y):
@@ -173,7 +192,7 @@ class Enemy(BaseSprite):
         self.currentSteps = 0
         self.state = 'moving'
         self.animationCounter = 0
-        
+        self.healthbar = Enemy_HealthBar(game, self, x, y)
         super().__init__(game, x,y, ENEMY_LAYER, game._enemy_spritesheet.get_image(0, 0, TILE_SIZE, TILE_SIZE), (game._all_sprites, game._all_enemies))
         
     def move(self):
@@ -219,6 +238,7 @@ class Enemy(BaseSprite):
             self.state = "stalling"
         
         self.collide_block()
+        self.collide_player()
 
     def animation(self):
         downAnimations = [self._game._enemy_spritesheet.get_image(0,0, self.width, self.height),
@@ -272,3 +292,67 @@ class Enemy(BaseSprite):
             elif self.direction == 'down':
                 self.rect.y -= PLAYER_STEPS
                 self.direction = 'up'
+                
+    def collide_player(self):
+        collide = pygame.sprite.spritecollide(self, self._game.mainPlayer, True, pygame.sprite.collide_rect_ratio(0.9))
+        
+        if(collide):
+            self._game._running = False
+        
+
+class Player_HealthBar(pygame.sprite.Sprite):
+    def __init__(self, game, x,y):
+        self._game = game
+        self._layer = HEALTH_LAYER
+        self.groups = self._game._all_sprites
+        pygame.sprite.Sprite.__init__(self, self.groups)
+        
+        self.x = x*TILE_SIZE
+        self.y = y*TILE_SIZE
+        
+        self.width = 40
+        self.height = 10
+        
+        self.image = pygame.Surface([self.width, self.height])
+        self.image.fill(GREEN)
+        
+        #determine position, want this to be at the top of the player on start
+        self.rect = self.image.get_rect()
+        self.rect.x = self.x
+        self.rect.y = self.y - TILE_SIZE/2 #just above player
+        
+    def move(self):
+        self.rect.x = self._game.player.rect.x
+        self.rect.y = self._game.player.rect.y - TILE_SIZE/2
+        
+    def update(self):
+        self.move()
+        
+class Enemy_HealthBar(pygame.sprite.Sprite):
+    def __init__(self, game, enemy, x,y):
+        self.enemy = enemy
+        self._game = game
+        self._layer = HEALTH_LAYER
+        self.groups = self._game._all_sprites
+        pygame.sprite.Sprite.__init__(self, self.groups)
+        
+        self.x = x*TILE_SIZE
+        self.y = y*TILE_SIZE
+        
+        self.width = 40
+        self.height = 10
+        
+        self.image = pygame.Surface([self.width, self.height])
+        self.image.fill(GREEN)
+        
+        #determine position, want this to be at the top of the player on start
+        self.rect = self.image.get_rect()
+        self.rect.x = self.x
+        self.rect.y = self.y - TILE_SIZE/2 #just above player
+        
+    def move(self):
+        self.rect.x = self.enemy.rect.x
+        self.rect.y = self.enemy.rect.y - TILE_SIZE/2
+        
+    def update(self):
+        self.move()

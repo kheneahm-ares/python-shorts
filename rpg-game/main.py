@@ -2,6 +2,7 @@ from configuration import *
 import pygame 
 import sys
 from sprites import *
+from weapons import *
 
 class Spritesheet:
     def __init__(self, path):
@@ -22,6 +23,8 @@ class Game:
         self._terrain_spritesheet = Spritesheet('assets/images/terrain.png') 
         self._player_spritesheet = Spritesheet('assets/images/cats.png') 
         self._enemy_spritesheet = Spritesheet('assets/images/evil.png') 
+        self._weapon_spritesheet = Spritesheet('assets/images/sword.png') 
+        self._bullet_spritesheet = Spritesheet('assets/images/powerBall.png') 
         self._running = True
         self.block_collided = False
         self.enemy_collided = False
@@ -41,12 +44,17 @@ class Game:
                     Enemy(self, j, i)
                 if column == 'W':
                     Water(self, j, i)
+                if column == 'I':
+                    Weapon(self, j, i)
     
     def create(self):
         self._all_sprites = pygame.sprite.LayeredUpdates()
         self._all_blocks = pygame.sprite.LayeredUpdates()
         self._all_enemies = pygame.sprite.LayeredUpdates()
         self._all_water = pygame.sprite.LayeredUpdates()
+        self.mainPlayer  = pygame.sprite.LayeredUpdates()
+        self._all_weapons = pygame.sprite.LayeredUpdates()
+        self._all_bullets = pygame.sprite.LayeredUpdates()
         self.createTileMap()
         
     def update(self):
