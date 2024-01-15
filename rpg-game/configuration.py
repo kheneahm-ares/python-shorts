@@ -6,6 +6,9 @@ PLAYER_STEPS = 3 #how many pixels
 ENEMY_STEPS = 1
 BULLET_STEPS = 6
 
+ENEMY_MAX_HEALTH = 6
+PLAYER_MAX_HEALTH = 6
+
 #layer order
 GROUND_LAYER = 1
 BLOCKS_LAYER = 2
@@ -18,6 +21,7 @@ HEALTH_LAYER = 6
 #colors
 BLACK = (0,0,0)
 GREEN = (0,255,0)
+RED = (255,0,0)
 
 #20x20 
 #B is block

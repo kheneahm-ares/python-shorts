@@ -65,9 +65,18 @@ class Player(BaseSprite):
         self.waitTime = 10
         self.waitCounter = 0
         self.shootState = "shoot"
-        
+        self.currentHealth = PLAYER_MAX_HEALTH
+        self.totalHealth = PLAYER_MAX_HEALTH
         super().__init__(game, x,y, PLAYER_LAYER, game._player_spritesheet.get_image(0, 0, TILE_SIZE, TILE_SIZE), (game._all_sprites, game.mainPlayer))
     
+    def takeDamage(self, amount):
+        self.currentHealth -= amount
+        self.healthbar.damage(self.currentHealth, self.totalHealth)
+        
+        if self.currentHealth <= 0:
+            self.kill()
+            self.healthbar.kill()
+            
     def waitAfterShoot(self):
         if self.shootState == 'wait':
             self.waitCounter += 1
@@ -205,8 +214,34 @@ class Enemy(BaseSprite):
         self.state = 'moving'
         self.animationCounter = 0
         self.healthbar = Enemy_HealthBar(game, self, x, y)
-        super().__init__(game, x,y, ENEMY_LAYER, game._enemy_spritesheet.get_image(0, 0, TILE_SIZE, TILE_SIZE), (game._all_sprites, game._all_enemies))
+        self.currentHealth = ENEMY_MAX_HEALTH
+        self.totalHealth = ENEMY_MAX_HEALTH
+        self.shootCounter = 0
+        self.waitShoot = random.choice([10,20,30,40,50])
+        self.shootState = 'wait'
         
+        super().__init__(game, x,y, ENEMY_LAYER, game._enemy_spritesheet.get_image(0, 0, TILE_SIZE, TILE_SIZE), (game._all_sprites, game._all_enemies))
+    
+    def shoot(self):
+        self.shootCounter += 1
+            
+        if self.shootCounter == self.waitShoot:
+            self.shootState = 'shoot'
+            self.shootCounter = 0
+            self.waitShoot = random.choice([10,20,30,40,50])
+            
+        if self.shootState == 'shoot':
+            Enemy_Bullet(self._game, self.rect.x, self.rect.y)
+            self.shootState = 'wait'
+                    
+    def takeDamage(self, amount):
+        self.currentHealth -= amount
+        self.healthbar.damage(self.currentHealth, self.totalHealth)
+        
+        if self.currentHealth <= 0:
+            self.kill()
+            self.healthbar.kill()
+            
     def move(self):
         if self.state == 'moving':
             
@@ -251,7 +286,7 @@ class Enemy(BaseSprite):
         
         self.collide_block()
         self.collide_player()
-
+        self.shoot()
     def animation(self):
         downAnimations = [self._game._enemy_spritesheet.get_image(0,0, self.width, self.height),
                           self._game._enemy_spritesheet.get_image(32,0, self.width, self.height),
@@ -333,6 +368,15 @@ class Player_HealthBar(pygame.sprite.Sprite):
         self.rect.x = self.x
         self.rect.y = self.y - TILE_SIZE/2 #just above player
         
+    def damage(self, health, totalHealth):
+        self.image.fill(RED)
+        width = self.rect.width * health/totalHealth
+        
+        pygame.draw.rect(self.image, GREEN, (0,0,width, self.height), 0)
+        
+    def kill_bar(self):
+        self.kill()
+        
     def move(self):
         self.rect.x = self._game.player.rect.x
         self.rect.y = self._game.player.rect.y - TILE_SIZE/2
@@ -365,6 +409,15 @@ class Enemy_HealthBar(pygame.sprite.Sprite):
     def move(self):
         self.rect.x = self.enemy.rect.x
         self.rect.y = self.enemy.rect.y - TILE_SIZE/2
+        
+    def damage(self, health, totalHealth):
+        self.image.fill(RED)
+        width = self.rect.width * health/totalHealth
+        
+        pygame.draw.rect(self.image, GREEN, (0,0,width, self.height), 0)
+        
+    def kill_bar(self):
+        self.kill()
         
     def update(self):
         self.move()
