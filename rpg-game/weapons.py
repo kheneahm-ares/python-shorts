@@ -52,18 +52,26 @@ class Bullet(pygame.sprite.Sprite):
         self.rect.y = self.y
         self.direction = self.game.player.direction
         
+    def collide_block(self):
+        collide = pygame.sprite.spritecollide(self, self.game._all_blocks, False)
+        if collide:
+            self.kill()
+    def collide_enemy(self):
+        collide = pygame.sprite.spritecollide(self, self.game._all_enemies, False)
+        if collide:
+            self.kill()
+            
     def move(self):
         if self.direction == 'right':
-            print(self.direction)
             self.rect.x += BULLET_STEPS
         if self.direction == 'left':
-            print(self.direction)
             self.rect.x -= BULLET_STEPS
         if self.direction == 'up':
-            print(self.direction)
             self.rect.y -= BULLET_STEPS
         if self.direction == 'down':
             self.rect.y += BULLET_STEPS
             
     def update(self):
         self.move()
+        self.collide_block()
+        self.collide_enemy()

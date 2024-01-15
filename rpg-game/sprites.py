@@ -62,15 +62,26 @@ class Player(BaseSprite):
         self.animationCounter = 0
         self.healthbar = Player_HealthBar(game, x, y)
         self.swordEquipped = False
+        self.waitTime = 10
+        self.waitCounter = 0
+        self.shootState = "shoot"
+        
         super().__init__(game, x,y, PLAYER_LAYER, game._player_spritesheet.get_image(0, 0, TILE_SIZE, TILE_SIZE), (game._all_sprites, game.mainPlayer))
+    
+    def waitAfterShoot(self):
+        if self.shootState == 'wait':
+            self.waitCounter += 1
+            if self.waitCounter >= self.waitTime:
+                self.shootState = 'shoot'
+                self.waitCounter = 0
     
     def shoot_sword(self):
         pressed = pygame.key.get_pressed()
-        
-        if self.swordEquipped:
-            if pressed[pygame.K_z]:
-                print('hi')
-                Bullet(self._game, self.rect.x, self.rect.y)
+        if self.shootState == 'shoot':
+            if self.swordEquipped:
+                if pressed[pygame.K_z]:
+                    Bullet(self._game, self.rect.x, self.rect.y)
+                    self.shootState = 'wait'
     
     def move(self):
         key_pressed = pygame.key.get_pressed()
@@ -98,6 +109,7 @@ class Player(BaseSprite):
         self.collide_enemy()
         self.collide_weapon()
         self.shoot_sword()
+        self.waitAfterShoot()
         
         #reset the            
         self.x_change = 0
