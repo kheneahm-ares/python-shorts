@@ -6,7 +6,6 @@ from sprites import *
 class Spritesheet:
     def __init__(self, path):
         self._spritesheet = pygame.image.load(path).convert()
-        
     def get_image(self, x,y, width, height):
         sprite = pygame.Surface([width, height])
         sprite.blit(self._spritesheet, (0,0), (x,y,width,height))
@@ -24,6 +23,8 @@ class Game:
         self._player_spritesheet = Spritesheet('assets/images/cats.png') 
         self._enemy_spritesheet = Spritesheet('assets/images/evil.png') 
         self._running = True
+        self.block_collided = False
+        self.enemy_collided = False
         
     def createTileMap(self):
         #row = up and down = y
@@ -65,9 +66,27 @@ class Game:
         self._clock.tick(FPS)
         pygame.display.update()
     
+    def camera(self):
+        if self.block_collided == False and self.enemy_collided == False:
+            pressed = pygame.key.get_pressed()
+        
+            if pressed[pygame.K_LEFT]:
+                for i, sprite in enumerate(self._all_sprites):
+                    sprite.rect.x += PLAYER_STEPS
+            elif pressed[pygame.K_RIGHT]:
+                for i, sprite in enumerate(self._all_sprites):
+                    sprite.rect.x -= PLAYER_STEPS
+            elif pressed[pygame.K_DOWN]:
+                for i, sprite in enumerate(self._all_sprites):
+                    sprite.rect.y -= PLAYER_STEPS
+            elif pressed[pygame.K_UP]:
+                for i, sprite in enumerate(self._all_sprites):
+                    sprite.rect.y += PLAYER_STEPS
+    
     def main(self):
         while self._running:
             self.events()
+            self.camera()
             self.update()
             self.draw()
 

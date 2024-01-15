@@ -130,6 +130,7 @@ class Player(BaseSprite):
         collideWater = pygame.sprite.spritecollide(self, self._game._all_water, False, pygame.sprite.collide_rect_ratio(0.9))
         
         if collide or collideWater:
+            self._game.block_collided = True
             if pressed[pygame.K_LEFT]:
                 self.rect.x += PLAYER_STEPS
             elif pressed[pygame.K_RIGHT]:
@@ -138,6 +139,10 @@ class Player(BaseSprite):
                 self.rect.y += PLAYER_STEPS
             elif pressed[pygame.K_DOWN]:
                 self.rect.y -= PLAYER_STEPS
+        else:
+            self._game.block_collided = False
+            
+            
         
     def collide_enemy(self):
         #negating steps moved
@@ -145,6 +150,8 @@ class Player(BaseSprite):
         collide = pygame.sprite.spritecollide(self, self._game._all_enemies, False, pygame.sprite.collide_rect_ratio(0.9))
         
         if collide:
+            self._game.enemy_collided = True
+            
             if pressed[pygame.K_LEFT]:
                 self.rect.x += PLAYER_STEPS
             elif pressed[pygame.K_RIGHT]:
@@ -153,6 +160,9 @@ class Player(BaseSprite):
                 self.rect.y += PLAYER_STEPS
             elif pressed[pygame.K_DOWN]:
                 self.rect.y -= PLAYER_STEPS
+        else:
+            self._game.enemy_collided = False
+            
 class Enemy(BaseSprite):
     def __init__(self, game, x,y):
         self.x_change = 0
