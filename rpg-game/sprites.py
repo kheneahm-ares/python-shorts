@@ -95,16 +95,20 @@ class Player(BaseSprite):
     def move(self):
         key_pressed = pygame.key.get_pressed()
             
-        if key_pressed[pygame.K_LEFT]:            
+        if key_pressed[pygame.K_LEFT]:
+            self.particle = Particle(self._game, self._x, self._y)                        
             self.x_change -= PLAYER_STEPS
             self.direction = "left"
         elif key_pressed[pygame.K_RIGHT]:
+            self.particle = Particle(self._game, self._x, self._y)                        
             self.x_change += PLAYER_STEPS
             self.direction = "right"
         elif key_pressed[pygame.K_DOWN]:
+            self.particle = Particle(self._game, self._x, self._y)                        
             self.y_change += PLAYER_STEPS
             self.direction = "down"
         elif key_pressed[pygame.K_UP]:
+            self.particle = Particle(self._game, self._x, self._y)                        
             self.y_change -= PLAYER_STEPS
             self.direction = "up"
 
@@ -421,3 +425,31 @@ class Enemy_HealthBar(pygame.sprite.Sprite):
         
     def update(self):
         self.move()
+        
+class Particle(pygame.sprite.Sprite):
+    def __init__(self, game, x,y):
+        self._game = game
+        self._layer = HEALTH_LAYER
+        self.groups = self._game._all_sprites
+        pygame.sprite.Sprite.__init__(self, self.groups)
+
+        self.image = pygame.Surface([4,4])
+        self.image.fill((255,255,255))
+        
+        #determine position, want this to be at the top of the player on start
+        self.rect = self.image.get_rect()
+        self.rect.x = x + random.choice([-10,-5, -3, -1, 2, 3, 4, 10, 20, 30, 40])
+        self.rect.y = y + TILE_SIZE
+        self.lifetime = 6
+        self.counter = 0
+        
+    def move(self):
+        self.rect.y +=1
+        self.counter += 1
+        
+        if self.counter == self.lifetime:
+            self.counter = 0
+            self.kill()
+            
+    def update(self):
+        self.move()     
